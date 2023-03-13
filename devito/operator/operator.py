@@ -878,16 +878,44 @@ class Operator(Callable):
             metrics = []
 
             v = summary.globals.get('vanilla')
+
+            oi = None
+            gflopss = None
+            gpointss = None
+
             if v is not None:
+                oi = fround(v.oi)
+                gflopss = fround(v.gflopss)
                 metrics.append("OI=%.2f" % fround(v.oi))
                 metrics.append("%.2f GFlops/s" % fround(v.gflopss))
 
             v = summary.globals.get('fdlike')
             if v is not None:
+                gpointss = fround(v.gpointss)
                 metrics.append("%.2f GPts/s" % fround(v.gpointss))
 
             if metrics:
                 perf("Global performance: [%s]" % ', '.join(metrics))
+            
+            try:
+                global_stats = open("global_stats.txt", "x")
+                results = open("results.csv", "a+")
+                results.write(",")
+                results.write(str(elapsed))
+                if (oi is not None):
+                    results.write(",")
+                    results.write(str(oi))
+                if (gflopss is not None):
+                    results.write(",")
+                    results.write(str(gflopss))    
+                if (gpointss is not None):
+                    results.write(",")
+                    results.write(str(gpointss))
+                results.close()
+
+                global_stats.close()
+            except FileExistsError:   
+                pass    
 
             perf("Local performance:")
             indent = " "*2
