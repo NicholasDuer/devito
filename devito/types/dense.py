@@ -1112,7 +1112,7 @@ class Function(DiscreteFunction):
                 halo = tuple(halo[d] for d in self.dimensions)
         else:
             time_tile_size = 3
-            space_order = kwargs.get('space_order', 1) * time_tile_size
+            space_order = kwargs.get('space_order', 1) * (time_tile_size - 1)
             if isinstance(space_order, int):
                 halo = (space_order, space_order)
             elif isinstance(space_order, tuple) and len(space_order) == 3:
