@@ -872,6 +872,11 @@ class Operator(Callable):
             # Do not waste time
             return summary
 
+
+        oi_global = None
+        gflopss_global = None
+        gpointss_global = None
+
         if summary.globals:
             # Note that with MPI enabled, the global performance indicators
             # represent "cross-rank" performance data
@@ -879,48 +884,26 @@ class Operator(Callable):
 
             v = summary.globals.get('vanilla')
 
-            oi = None
-            gflopss = None
-            gpointss = None
-
             if v is not None:
-                oi = fround(v.oi)
-                gflopss = fround(v.gflopss)
+                oi_global = fround(v.oi)
+                gflopss_global = fround(v.gflopss)
                 metrics.append("OI=%.2f" % fround(v.oi))
                 metrics.append("%.2f GFlops/s" % fround(v.gflopss))
 
             v = summary.globals.get('fdlike')
             if v is not None:
-                gpointss = fround(v.gpointss)
+                gpointss_global = fround(v.gpointss)
                 metrics.append("%.2f GPts/s" % fround(v.gpointss))
 
             if metrics:
                 perf("Global performance: [%s]" % ', '.join(metrics))
-            
-            try:
-                global_stats = open("global_stats.txt", "x")
-                results = open("results.csv", "a+")
-                results.write(",")
-                results.write(str(elapsed))
-                if (oi is not None):
-                    results.write(",")
-                    results.write(str(oi))
-                if (gflopss is not None):
-                    results.write(",")
-                    results.write(str(gflopss))    
-                if (gpointss is not None):
-                    results.write(",")
-                    results.write(str(gpointss))
-                results.close()
-
-                global_stats.close()
-            except FileExistsError:   
-                pass    
 
             perf("Local performance:")
             indent = " "*2
         else:
             indent = ""
+
+        haloupdate0 = None
 
         # Emit local, i.e. "per-rank" performance. Without MPI, this is the only
         # thing that will be emitted
@@ -941,6 +924,8 @@ class Operator(Callable):
 
             perf("%s* %s ran in %.2f s [%s]" % (indent, name, fround(v.time), metrics))
             for n, time in summary.subsections.get(k.name, {}).items():
+                if (n == "haloupdate0"):
+                    haloupdate0 = str(time)
                 perf("%s+ %s ran in %.2f s [%.2f%%]" %
                      (indent*2, n, time, fround(time/v.time*100)))
 
@@ -958,6 +943,28 @@ class Operator(Callable):
                         perf_args[a] = args[a]
                         break
         perf("Performance[mode=%s] arguments: %s" % (self._mode, perf_args))
+
+        try:
+            global_stats = open("global_stats.txt", "x")
+            results = open("results.csv", "a+")
+            results.write(",")
+            results.write(str(elapsed))
+            if (oi is not None):
+                results.write(",")
+                results.write(str(oi_global))
+            if (gflopss is not None):
+                results.write(",")
+                results.write(str(gflopss_global))    
+            if (gpointss is not None):
+                results.write(",")
+                results.write(str(gpointss_global))
+            if (haloupdate0 is not None):
+                results.write(",")
+                results.write(str(haloupdate0))    
+            results.close()
+            global_stats.close()
+        except FileExistsError:   
+            pass    
 
         return summary
 
@@ -1169,3 +1176,4 @@ def parse_kwargs(**kwargs):
     )
 
     return kwargs
+
