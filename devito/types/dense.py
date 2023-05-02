@@ -1115,7 +1115,7 @@ class Function(DiscreteFunction):
             space_order = kwargs.get('space_order', 1)
             if isinstance(space_order, int):
                 if (space_order != 1):
-                    space_order = (space_order // 2) * time_tile_size
+                    space_order += (space_order // 2) * (time_tile_size - 1)
                 halo = (space_order, space_order)
             elif isinstance(space_order, tuple) and len(space_order) == 3:
                 _, left_points, right_points = space_order
