@@ -4,6 +4,7 @@ from functools import wraps, reduce
 from math import ceil
 from operator import mul
 
+import os
 import numpy as np
 import sympy
 from psutil import virtual_memory
@@ -1111,7 +1112,7 @@ class Function(DiscreteFunction):
             if isinstance(halo, DimensionTuple):
                 halo = tuple(halo[d] for d in self.dimensions)
         else:
-            time_tile_size = 8
+            time_tile_size = int(os.getenv('TIME_TILE_SIZE'))
             space_order = kwargs.get('space_order', 1)
             if isinstance(space_order, int):
                 if (space_order != 1):
