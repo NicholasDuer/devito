@@ -1,2 +1,0 @@
-num_ranks,space_order,time_tile_size,wf_x_width,wf_y_width,time,x_size,y_size,z_size,repeat_num,elapsed_time,oi,gflopss,gpointss,haloupdate0
-2,2,4,32,32,256,256,256,256,1
