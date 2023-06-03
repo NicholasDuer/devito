@@ -943,28 +943,29 @@ class Operator(Callable):
                         perf_args[a] = args[a]
                         break
         perf("Performance[mode=%s] arguments: %s" % (self._mode, perf_args))
-
-        try:
-            global_stats = open("global_stats.txt", "x")
-            results = open("results.csv", "a+")
-            results.write(",")
-            results.write(str(elapsed))
-            if (oi is not None):
+        
+        if (self.name == "Kernel"):
+            try:
+                global_stats = open("global_stats.txt", "x")
+                results = open("results.csv", "a+")
                 results.write(",")
-                results.write(str(oi_global))
-            if (gflopss is not None):
-                results.write(",")
-                results.write(str(gflopss_global))    
-            if (gpointss is not None):
-                results.write(",")
-                results.write(str(gpointss_global))
-            if (haloupdate0 is not None):
-                results.write(",")
-                results.write(str(haloupdate0))    
-            results.close()
-            global_stats.close()
-        except FileExistsError:   
-            pass    
+                results.write(str(elapsed))
+                if (oi is not None):
+                    results.write(",")
+                    results.write(str(oi_global))
+                if (gflopss is not None):
+                    results.write(",")
+                    results.write(str(gflopss_global))    
+                if (gpointss is not None):
+                    results.write(",")
+                    results.write(str(gpointss_global))
+                if (haloupdate0 is not None):
+                    results.write(",")
+                    results.write(str(haloupdate0))    
+                results.close()
+                global_stats.close()
+            except FileExistsError:   
+                pass    
 
         return summary
 
