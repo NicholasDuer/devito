@@ -4,6 +4,7 @@ from math import ceil
 
 from cached_property import cached_property
 import ctypes
+import os
 
 from devito.arch import compiler_registry, platform_registry
 from devito.data import default_allocator
@@ -943,10 +944,13 @@ class Operator(Callable):
                         perf_args[a] = args[a]
                         break
         perf("Performance[mode=%s] arguments: %s" % (self._mode, perf_args))
+
+        num_ranks = int(os.getenv('NUM_RANKS'))
+
         if (self.name == "Kernel"):
             try:
-                global_stats = open("global_stats.txt", "x")
-                results = open("results.csv", "a+")
+                global_stats = open("global_stats" + str(num_ranks) + ".txt", "x")
+                results = open("results" + str(num_ranks) + ".csv", "a+")
                 results.write(",")
                 results.write(str(elapsed))
                 if (oi is not None):
