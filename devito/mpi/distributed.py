@@ -3,6 +3,7 @@ from itertools import groupby, product
 from math import ceil
 from abc import ABC, abstractmethod
 import atexit
+import os
 
 from cached_property import cached_property
 import numpy as np
@@ -193,8 +194,17 @@ class Distributor(AbstractDistributor):
             # Note: the cloned communicator doesn't need to be explicitly freed;
             # mpi4py takes care of that when the object gets out of scope
             self._input_comm = (input_comm or MPI.COMM_WORLD).Clone()
+            num_ranks = int(os.getenv('NUM_RANKS'))
             
-            topology = ('*', '*', 1)
+            if num_ranks == 1:
+                topology = (1, 1, 1)
+            elif num_ranks == 2:
+                topology = (2,1,1)
+            elif num_ranks == 4:
+                topology = (2,2,1)
+            elif num_ranks == 8:
+                topology = (4,2,1)        
+
             if topology is None:
                 # `MPI.Compute_dims` sets the dimension sizes to be as close to each other
                 # as possible, using an appropriate divisibility algorithm. Thus, in 3D:
